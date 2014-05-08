@@ -119,6 +119,7 @@ case class SocketPlan(intent: SocketIntent,
     PongWebSocketFrame, TextWebSocketFrame,
     WebSocketFrame
   }
+  import org.jboss.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame
 
   def attempt = intent.orElse({ case _ => () }: SocketIntent)
 
@@ -128,6 +129,8 @@ case class SocketPlan(intent: SocketIntent,
         shaker.close(ctx.getChannel, c)
       case p: PingWebSocketFrame =>
         ctx.getChannel.write(new PongWebSocketFrame(p.getBinaryData()))
+      case p: PongWebSocketFrame =>
+        //ctx.getChannel.write(new PingWebSocketFrame(p.getBinaryData()))
       case t: TextWebSocketFrame =>
         attempt(Message(WebSocket(ctx.getChannel), Text(t.getText)))
       case f: WebSocketFrame =>
